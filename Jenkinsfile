@@ -1,23 +1,37 @@
 pipeline {
     agent any
 
+    environment {
+        // Match these to your Jenkins Global Tool and Credentials configuration
+        SNYK_INST_NAME = 'Snyk_CLI' 
+        SNYK_TOKEN_ID  = 'snyk-api-token'
+    }
+
     stages {
-
-        // Not required if you just install the Snyk CLI on your Agent
-        stage('Download Latest Snyk CLI') {
+        stage('Build') {
             steps {
-                sh '''
-                    latest_version=$(curl -Is "https://github.com/snyk/cli/releases/latest" | grep "^location" | sed s#.*tag/##g | tr -d "\r")
-                    echo "Latest Snyk CLI Version: ${latest_version}"
+                echo 'Building...'
+                // Your build commands (npm install, mvn package, etc.) go here
+            }
+        }
 
-                    snyk_cli_dl_linux="https://github.com/snyk/cli/releases/download/${latest_version}/snyk-linux"
-                    echo "Download URL: ${snyk_cli_dl_linux}"
+        stage('Security Test') {
+            steps {
+                echo 'Running Snyk Security Scan...'
+                
+                // This step is provided by the Snyk Jenkins Plugin
+                snykSecurity(
+                    snykInstallation: "${SNYK_INST_NAME}",
+                    snykTokenId: "${SNYK_TOKEN_ID}",
+                    additionalArguments: '--all-projects --detection-depth=3'
+                )
+            }
+        }
 
-                    curl -Lo ./snyk "${snyk_cli_dl_linux}"
-                    chmod +x snyk
-                    ls -la
-                    ./snyk -v
-                '''
+        stage('Deploy') {
+            steps {
+                echo 'Deploying...'
+                // Your deployment logic goes here
             }
         }
     }
