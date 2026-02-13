@@ -4,7 +4,7 @@ pipeline {
     environment {
         // Match these to your Jenkins Global Tool and Credentials configuration
         SNYK_INST_NAME = 'Snyk_CLI' 
-        SNYK_TOKEN_ID  = 'snyk-api-token'
+        SNYK_TOKEN_ID  = 'snyk-api-token-id'
     }
 
     stages {
